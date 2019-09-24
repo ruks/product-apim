@@ -364,7 +364,7 @@ Name | Type | Description  | Notes
 
 <a name="apisApiIdSwaggerPut"></a>
 # **apisApiIdSwaggerPut**
-> apisApiIdSwaggerPut(apiId, apiDefinition, ifMatch)
+> String apisApiIdSwaggerPut(apiId, apiDefinition, ifMatch)
 
 Update swagger definition
 
@@ -390,7 +390,8 @@ String apiId = "apiId_example"; // String | **API ID** consisting of the **UUID*
 String apiDefinition = "apiDefinition_example"; // String | Swagger definition of the API
 String ifMatch = "ifMatch_example"; // String | Validator for conditional requests; based on ETag. 
 try {
-    apiInstance.apisApiIdSwaggerPut(apiId, apiDefinition, ifMatch);
+    String result = apiInstance.apisApiIdSwaggerPut(apiId, apiDefinition, ifMatch);
+    System.out.println(result);
 } catch (ApiException e) {
     System.err.println("Exception when calling ApIsApi#apisApiIdSwaggerPut");
     e.printStackTrace();
@@ -407,7 +408,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-null (empty response body)
+**String**
 
 ### Authorization
 
@@ -761,7 +762,7 @@ null (empty response body)
 ### HTTP request headers
 
  - **Content-Type**: application/json
- - **Accept**: application/wsdl+xml, application/zip
+ - **Accept**: application/json, application/wsdl, application/zip
 
 <a name="importOpenAPIDefinition"></a>
 # **importOpenAPIDefinition**

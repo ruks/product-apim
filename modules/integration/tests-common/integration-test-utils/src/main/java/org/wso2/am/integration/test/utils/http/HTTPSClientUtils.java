@@ -25,6 +25,7 @@ import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
@@ -354,6 +355,24 @@ public class HTTPSClientUtils {
         }
         rd.close();
         return sb.toString();
+    }
+
+    public static org.wso2.carbon.automation.test.utils.http.client.HttpResponse doDelete(String url,
+            Map<String, String> headers) throws IOException {
+        CloseableHttpClient httpClient = getHttpsClient();
+        HttpResponse response = sendDeleteMessage(httpClient, url, headers);
+        return constructResponse(response);
+    }
+
+    private static HttpResponse sendDeleteMessage(CloseableHttpClient httpClient, String url,
+            Map<String, String> headers) throws IOException {
+        HttpDelete delete = new HttpDelete(url);
+        if (headers != null) {
+            for (Map.Entry<String, String> head : headers.entrySet()) {
+                delete.addHeader(head.getKey(), head.getValue());
+            }
+        }
+        return httpClient.execute(delete);
     }
 
 }

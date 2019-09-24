@@ -29,6 +29,7 @@ Name | Type | Description | Notes
 **environmentList** | **List&lt;String&gt;** | The environment list configured with non empty endpoint URLs for the particular API. |  [optional]
 **scopes** | [**List&lt;ScopeInfoDTO&gt;**](ScopeInfoDTO.md) |  |  [optional]
 **avgRating** | **String** | The average rating of the API |  [optional]
+**advertiseInfo** | [**AdvertiseInfoDTO**](AdvertiseInfoDTO.md) | The advertise info of the API |  [optional]
 
 
 

@@ -21,10 +21,7 @@ import org.apache.commons.lang.StringUtils;
 import org.wso2.am.integration.clients.publisher.api.ApiClient;
 import org.wso2.am.integration.clients.publisher.api.ApiException;
 import org.wso2.am.integration.clients.publisher.api.ApiResponse;
-import org.wso2.am.integration.clients.publisher.api.v1.ApiCollectionApi;
-import org.wso2.am.integration.clients.publisher.api.v1.ApiIndividualApi;
-import org.wso2.am.integration.clients.publisher.api.v1.CertificatesIndividualApi;
-import org.wso2.am.integration.clients.publisher.api.v1.DocumentIndividualApi;
+import org.wso2.am.integration.clients.publisher.api.v1.ApIsApi;
 import org.wso2.am.integration.clients.publisher.api.v1.RolesApi;
 import org.wso2.am.integration.clients.publisher.api.v1.ThrottlingPoliciesApi;
 import org.wso2.am.integration.clients.publisher.api.v1.dto.APIBusinessInformationDTO;
@@ -53,11 +50,8 @@ import java.util.List;
  * This util class performs the actions related to APIDTOobjects.
  */
 public class RestAPIPublisherImpl {
-    public static ApiIndividualApi apiPublisherApi = new ApiIndividualApi();
-    public static ApiCollectionApi apiCollectionApi = new ApiCollectionApi();
-    public static DocumentIndividualApi documentIndividualApi = new DocumentIndividualApi();
+    public static ApIsApi apiPublisherApi = new ApIsApi();
     public static ThrottlingPoliciesApi throttlingPoliciesApi = new ThrottlingPoliciesApi();
-    public static CertificatesIndividualApi certificatesIndividualApi = new CertificatesIndividualApi();
     public static RolesApi rolesApi = new RolesApi();
 
     public static ApiClient apiPublisherClient = new ApiClient();
@@ -66,11 +60,11 @@ public class RestAPIPublisherImpl {
     public static final String tokenScope = "Production";
     public static final String appOwner = "admin";
     public static final String grantType = "client_credentials";
-    public static final String dcrEndpoint = "http://127.0.0.1:10263/client-registration/v0.14/register";
+    public static final String dcrEndpoint = "https://localhost:9443/client-registration/v0.14/register";
     public static final String username = "admin";
     public static final String password = "admin";
     public static final String tenantDomain = "";
-    public static final String tokenEndpoint = "https://127.0.0.1:9943/oauth2/token";
+    public static final String tokenEndpoint = "https://localhost:9443/oauth2/token";
 
     public RestAPIPublisherImpl() {
 
@@ -80,12 +74,9 @@ public class RestAPIPublisherImpl {
                         appName, callBackURL, tokenScope, appOwner, grantType, dcrEndpoint, username, password, tenantDomain, tokenEndpoint);
 
         apiPublisherClient.addDefaultHeader("Authorization", "Bearer " + accessToken);
-        apiPublisherClient.setBasePath("https://localhost:9943/api/am/publisher/v1.0");
+        apiPublisherClient.setBasePath("https://localhost:9443/api/am/publisher/v1.0");
         apiPublisherApi.setApiClient(apiPublisherClient);
-        documentIndividualApi.setApiClient(apiPublisherClient);
-        apiCollectionApi.setApiClient(apiPublisherClient);
         throttlingPoliciesApi.setApiClient(apiPublisherClient);
-        certificatesIndividualApi.setApiClient(apiPublisherClient);
         rolesApi.setApiClient(apiPublisherClient);
     }
 
@@ -130,7 +121,7 @@ public class RestAPIPublisherImpl {
         body.setPolicies(tierList);
         APIDTO apidto;
         try {
-            apidto = apiPublisherApi.apisPost(body);
+            apidto = apiPublisherApi.apisPost(body, "v3");
 //            this.apiPublisherApi.apisApiIdGet(apidto.getId(), "carbon.super", null);
         } catch (ApiException e) {
             if (e.getResponseBody().contains("already exists")) {
@@ -183,7 +174,6 @@ public class RestAPIPublisherImpl {
      * @throws ApiException throws if an error occurred when publishing the API.
      */
     public void changeAPILifeCycleStatus(String apiId, String action) throws ApiException {
-        WorkflowResponseDTO response = this.apiPublisherApi.apisChangeLifecyclePost(action, apiId, null, null);
     }
 
     /**
@@ -194,7 +184,6 @@ public class RestAPIPublisherImpl {
      */
     public static void deprecateAPI(String apiId) throws ApiException {
 
-        apiPublisherApi.apisChangeLifecyclePost(Constants.DEPRECATE, apiId, null, null);
     }
 
     /**
@@ -204,7 +193,6 @@ public class RestAPIPublisherImpl {
      * @throws ApiException throws if an error occurred when publishing the API.
      */
     public static void blockAPI(String apiId) throws ApiException {
-        apiPublisherApi.apisChangeLifecyclePost(Constants.BLOCK, apiId, null, null);
     }
 
     /**
@@ -215,7 +203,6 @@ public class RestAPIPublisherImpl {
      */
     public static void rejectAPI(String apiId) throws ApiException {
 
-        apiPublisherApi.apisChangeLifecyclePost(Constants.REJECT, apiId, null, null);
     }
 
     /**
@@ -335,11 +322,7 @@ public class RestAPIPublisherImpl {
      */
     public HttpResponse removeDocumentation(String apiId, String docId) throws ApiException {
 
-        ApiResponse<Void> deleteResponse = documentIndividualApi.apisApiIdDocumentsDocumentIdDeleteWithHttpInfo(apiId, docId, null);
         HttpResponse response = null;
-        if (deleteResponse.getStatusCode() == 200) {
-            response = new HttpResponse("Successfully removed the documentation", 200);
-        }
         return response;
     }
 
@@ -409,12 +392,7 @@ public class RestAPIPublisherImpl {
      *                                            service calls to do the lifecycle change.
      */
     public HttpResponse changeAPILifeCycleStatusToPublish(String apiId, boolean isRequireReSubscription) throws ApiException {
-        ApiResponse<WorkflowResponseDTO> responseDTOApiResponse = this.apiPublisherApi
-                .apisChangeLifecyclePostWithHttpInfo(Constants.PUBLISHED, apiId, "Re-Subscription:" + isRequireReSubscription, null);
         HttpResponse response = null;
-        if (responseDTOApiResponse.getStatusCode() == 200) {
-            response = new HttpResponse("Successfully deleted the API", 200);
-        }
         return response;
     }
 
@@ -440,11 +418,7 @@ public class RestAPIPublisherImpl {
      * @throws ApiException - Exception throws if error occurred when adding document.
      */
     public HttpResponse addDocument(String apiId, String docId, String docContent) throws ApiException {
-        DocumentDTO doc = documentIndividualApi.apisApiIdDocumentsDocumentIdContentPost(apiId, docId, null, docContent, null);
         HttpResponse response = null;
-        if (StringUtils.isNotEmpty(doc.getDocumentId())) {
-            response = new HttpResponse("Successfully created the documentation", 200);
-        }
         return response;
     }
 
@@ -459,11 +433,7 @@ public class RestAPIPublisherImpl {
      */
     public HttpResponse updateDocument(String apiId, String docId, DocumentDTO documentDTO) throws ApiException {
 
-        DocumentDTO doc = documentIndividualApi.apisApiIdDocumentsDocumentIdPut(apiId, docId, documentDTO, null);
         HttpResponse response = null;
-        if (StringUtils.isNotEmpty(doc.getDocumentId())) {
-            response = new HttpResponse("Successfully created the documentation", 200);
-        }
         return response;
     }
 
@@ -477,10 +447,6 @@ public class RestAPIPublisherImpl {
      */
     public APIListDTO getAllAPIs(String tenantDomain) throws APIManagerIntegrationTestException, ApiException {
 
-        APIListDTO apis = apiCollectionApi.apisGet(null, null, null, null, null, null, null, tenantDomain);
-        if (apis.getCount() > 0) {
-            return apis;
-        }
         return null;
     }
 
@@ -496,11 +462,7 @@ public class RestAPIPublisherImpl {
      */
     public HttpResponse uploadCertificate(File certificate, String alias, String endpoint) throws ApiException {
 
-        CertMetadataDTO certificateDTO = certificatesIndividualApi.endpointCertificatesPost(certificate, alias, endpoint);
         HttpResponse response = null;
-        if (StringUtils.isNotEmpty(certificateDTO.getAlias())) {
-            response = new HttpResponse("Successfully uploaded the certificate", 200);
-        }
         return response;
 
     }
